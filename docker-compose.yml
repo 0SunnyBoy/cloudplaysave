@@ -1,0 +1,100 @@
+# dois modos de execução via profiles:
+#   docker compose --profile monolith      up --build
+#   docker compose --profile microservices up --build
+
+services:
+
+  monolith:
+    profiles: ["monolith"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cpg-monolith
+    ports:
+      - "3000:3000"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-cpg-secret-2026-troca-em-producao}
+      PORT: 3000
+      DB_STORAGE: /app/data/database.sqlite
+    volumes:
+      - monolith-data:/app/data
+    restart: unless-stopped
+
+  auth-service:
+    profiles: ["microservices"]
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile
+    container_name: cpg-auth
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-cpg-secret-2026-troca-em-producao}
+      AUTH_PORT: 4001
+      DB_STORAGE: /app/data/auth.sqlite
+    volumes:
+      - auth-data:/app/data
+    networks:
+      - cpg-net
+    restart: unless-stopped
+
+  catalog-service:
+    profiles: ["microservices"]
+    build:
+      context: ./microservices/catalog-service
+      dockerfile: Dockerfile
+    container_name: cpg-catalog
+    environment:
+      CATALOG_PORT: 4002
+      DB_STORAGE: /app/data/catalog.sqlite
+    volumes:
+      - catalog-data:/app/data
+    networks:
+      - cpg-net
+    restart: unless-stopped
+
+  order-service:
+    profiles: ["microservices"]
+    build:
+      context: ./microservices/order-service
+      dockerfile: Dockerfile
+    container_name: cpg-order
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-cpg-secret-2026-troca-em-producao}
+      ORDER_PORT: 4003
+      DB_STORAGE: /app/data/orders.sqlite
+    volumes:
+      - order-data:/app/data
+    networks:
+      - cpg-net
+    restart: unless-stopped
+
+  api-gateway:
+    profiles: ["microservices"]
+    build:
+      context: .
+      dockerfile: microservices/api-gateway/Dockerfile
+    container_name: cpg-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      GATEWAY_PORT: 3000
+      AUTH_URL:    http://auth-service:4001/auth
+      CATALOG_URL: http://catalog-service:4002/games
+      ORDER_URL:   http://order-service:4003/checkout
+      FRONT_DIR:   /app/frontend
+    depends_on:
+      - auth-service
+      - catalog-service
+      - order-service
+    networks:
+      - cpg-net
+    restart: unless-stopped
+
+volumes:
+  monolith-data:
+  auth-data:
+  catalog-data:
+  order-data:
+
+networks:
+  cpg-net:
+    driver: bridge

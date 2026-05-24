@@ -1,0 +1,37 @@
+/**
+ * Seed — popula a tabela games na primeira execução.
+ * Só insere se a tabela estiver vazia (idempotente).
+ */
+
+const GameModel = require('../models/GameModel');
+
+const GAMES_SEED = [
+  { title: 'Cyberpunk 2077',                genre: 'RPG / Open World',      price: 199.90, oldPrice: 299.90, rating: 4.8, image: 'https://upload.wikimedia.org/wikipedia/pt/f/f7/Cyberpunk_2077_capa.png',                                                                          badge: 'sale', desc: 'Uma megalópole futurista, missões infinitas e escolhas que moldam o destino em Night City. Assuma o controle de V e construa sua lenda.' },
+  { title: 'Shadow Of The Colossus',        genre: 'Action RPG',            price: 149.90,                   rating: 4.6, image: 'https://image.api.playstation.com/vulcan/img/rnd/202010/2319/XtqYrG2LWer39eExYBsh9J5x.png',                                                        badge: 'new',  desc: 'Dungeon crawler com mecânicas profundas, hordas de inimigos e loot épico. Domine as sombras e sobreviva aos perigos do abismo.' },
+  { title: 'Batman: Arkham Knight',         genre: 'Ação / Aventura',       price: 89.90,  oldPrice: 139.90, rating: 4.9, image: 'https://upload.wikimedia.org/wikipedia/pt/5/5d/Batman_Arkham_Knight_Capa.jpg',                                                                   badge: 'sale', desc: 'Seja a vingança. Explore Gotham City com o Batmóvel e enfrente os maiores vilões do Cavaleiro das Trevas no épico final da saga Arkham.' },
+  { title: "Death Stranding Director's Cut",genre: 'Ação / Sci-Fi',         price: 159.90,                   rating: 4.7, image: 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2214/UXDlNJfdtZJ080ONmH8q3CUX.png',                                                       badge: null,   desc: 'Reconecte uma sociedade fraturada entregando cargas essenciais em um mundo pós-apocalíptico deslumbrante e cheio de perigos sobrenaturais.' },
+  { title: 'Age of Empires II: Definitive', genre: 'Estratégia / RTS',      price: 36.99,                    rating: 4.8, image: 'https://upload.wikimedia.org/wikipedia/pt/thumb/8/81/Age_of_Empires_II_Definitive_Edition.jpeg/250px-Age_of_Empires_II_Definitive_Edition.jpeg', badge: 'hot',  desc: 'Construa seu império, lidere exércitos históricos e conquiste civilizações ao longo das eras neste clássico absoluto da estratégia.' },
+  { title: 'Civilization VI',               genre: 'Estratégia / Turnos',   price: 129.90, oldPrice: 259.90, rating: 4.5, image: 'https://upload.wikimedia.org/wikipedia/pt/3/3b/Civilization_VI_cover_art.jpg',                                                                    badge: 'sale', desc: 'Expanda seu império, avance sua cultura e compita contra os maiores líderes da história para construir uma civilização que resista ao teste do tempo.' },
+  { title: 'Forza Horizon 5',               genre: 'Corrida / Open World',  price: 249.90,                   rating: 4.9, image: 'https://upload.wikimedia.org/wikipedia/pt/thumb/d/dc/Capa_de_Forza_Horizon_5.jpg/330px-Capa_de_Forza_Horizon_5.jpg',                              badge: 'hot',  desc: 'Pilote centenas de carros incríveis e explore as paisagens vibrantes e em constante mudança do México em um festival de corrida sem limites.' },
+  { title: 'Need for Speed Unbound',        genre: 'Corrida / Arcade',      price: 299.90,                   rating: 4.3, image: 'https://image.api.playstation.com/vulcan/ap/rnd/202411/0814/ddc8dfe7059dd697cc77c272406d71cea803bebfd1c4119d.png',                                badge: 'new',  desc: 'Corra contra o tempo, fuja da polícia e prove suas habilidades nas ruas para chegar ao topo com um estilo visual único.' },
+  { title: 'Portal 2',                      genre: 'Puzzle / Co-op',        price: 32.99,                    rating: 5.0, image: 'https://upload.wikimedia.org/wikipedia/pt/thumb/f/f9/Portal2cover.jpg/250px-Portal2cover.jpg',                                                     badge: null,   desc: 'Use a arma de portais para resolver quebra-cabeças complexos enquanto lida com uma IA sádica e hilária. A ciência nunca foi tão perigosa.' },
+  { title: 'The Witness',                   genre: 'Puzzle / Exploração',   price: 72.99,                    rating: 4.6, image: 'https://upload.wikimedia.org/wikipedia/en/f/f4/The_Witness_cover.jpg',                                                                             badge: null,   desc: 'Acorde sozinho em uma ilha misteriosa repleta de enigmas visuais, painéis lógicos e segredos escondidos em cada canto da paisagem.' },
+  { title: 'Resident Evil 4 Remake',        genre: 'Terror / Survival',     price: 249.90,                   rating: 4.9, image: 'https://upload.wikimedia.org/wikipedia/pt/3/30/Resident_Evil_4_%28remake%29.png',                                                                   badge: 'hot',  desc: 'Sobreviva ao pesadelo em uma vila remota e hostil enquanto busca pela filha desaparecida do presidente. Um clássico de terror reimaginado.' },
+  { title: 'Outlast',                       genre: 'Terror / Stealth',      price: 39.90,  oldPrice: 59.90,  rating: 4.7, image: 'https://upload.wikimedia.org/wikipedia/pt/9/9f/Outlast_Cover_Art.jpg',                                                                             badge: 'sale', desc: 'Infiltre-se em um hospício abandonado armado apenas com uma câmera de visão noturna e tente não enlouquecer com os horrores lá dentro.' },
+  { title: 'EA SPORTS FC 24',               genre: 'Esporte / Futebol',     price: 359.90,                   rating: 4.4, image: 'https://upload.wikimedia.org/wikipedia/en/b/b3/EA_FC24_Cover.jpg',                                                                                  badge: 'new',  desc: 'A experiência mais autêntica do futebol mundial, com milhares de jogadores licenciados, ligas oficiais e gráficos ultrarrealistas.' },
+  { title: 'Rocket League',                 genre: 'Esporte / Arcade',      price: 0,                        rating: 4.8, image: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Rocket_League_coverart.jpg',                                                                    badge: null,   desc: 'Futebol, mas com carros turbinados! Faça acrobacias aéreas e marque gols incríveis nesta arena multiplayer caótica e viciante.' },
+  { title: 'Titanfall 2',                   genre: 'FPS / Ação',            price: 89.90,  oldPrice: 119.90, rating: 4.9, image: 'https://upload.wikimedia.org/wikipedia/pt/e/ee/Titanfall_2_cover.jpg',                                                                             badge: 'sale', desc: 'Domine a fronteira com a movimentação mais fluida dos jogos de tiro e lute ao lado de um Titã gigante em uma campanha inesquecível.' },
+  { title: 'Star Wars Battlefront II',      genre: 'FPS / Multiplayer',     price: 159.90,                   rating: 4.5, image: 'https://upload.wikimedia.org/wikipedia/pt/c/c7/Star_Wars_Battlefront_2_2017_capa.png',                                                              badge: 'hot',  desc: 'Participe de batalhas épicas em múltiplas eras da saga, pilotando caças espaciais e jogando com heróis lendários empunhando sabres de luz.' },
+];
+
+async function runSeed() {
+  const total = await GameModel.count();
+  if (total > 0) {
+    console.log(`🌱  Seed ignorado — ${total} jogos já no banco.`);
+    return;
+  }
+  await GameModel.bulkCreate(GAMES_SEED);
+  console.log(`🌱  Seed concluído — ${GAMES_SEED.length} jogos inseridos.`);
+}
+
+module.exports = { runSeed };

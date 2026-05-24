@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudPlayGames - Plataforma de Jogos</title>
+  <meta name="description" content="CloudPlayGames - A melhor plataforma de jogos digitais" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:    #08080f;
+      --bg-dark:    #0d0d1a;
+      --bg-card:    #12121f;
+      --bg-card2:   #1a1a2e;
+      --accent:     #00e5ff;
+      --accent2:    #7b2fff;
+      --accent3:    #ff2d78;
+      --gold:       #ffd700;
+      --text:       #e8e8f0;
+      --text-muted: #7a7a9a;
+      --border:     rgba(0,229,255,0.15);
+      --border2:    rgba(123,47,255,0.25);
+      --glow:       0 0 20px rgba(0,229,255,0.3);
+      --glow2:      0 0 20px rgba(123,47,255,0.4);
+      --font-display: 'Orbitron', monospace;
+      --font-body:    'Rajdhani', sans-serif;
+    }
+
+    html, body { height: 100%; font-family: var(--font-body); background: var(--bg-deep); color: var(--text); font-size: 16px; overflow-x: hidden; }
+
+    #root { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 3px; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      background: rgba(8,8,15,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 900;
+      color: var(--accent); letter-spacing: 2px; cursor: pointer;
+      text-shadow: 0 0 12px rgba(0,229,255,0.6);
+    }
+    .nav-logo span { color: var(--accent2); }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
+    .nav-link {
+      padding: 0.4rem 0.9rem; border-radius: 6px; cursor: pointer;
+      font-family: var(--font-body); font-weight: 600; font-size: 0.9rem;
+      color: var(--text-muted); letter-spacing: 0.5px;
+      transition: all 0.2s; border: none; background: none;
+      text-transform: uppercase;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(0,229,255,0.08); }
+    .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .cart-btn {
+      position: relative; cursor: pointer; padding: 0.4rem;
+      color: var(--text-muted); font-size: 1.4rem;
+      background: none; border: none; transition: color 0.2s;
+    }
+    .cart-btn:hover { color: var(--accent); }
+    .cart-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent3); color: #fff;
+      font-size: 0.65rem; font-weight: 700; font-family: var(--font-display);
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-primary {
+      padding: 0.45rem 1.2rem; border-radius: 6px; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: var(--bg-deep); border: none;
+      transition: all 0.2s; box-shadow: 0 0 14px rgba(0,229,255,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,229,255,0.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-outline {
+      padding: 0.45rem 1.2rem; border-radius: 6px; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent); transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(0,229,255,0.1); box-shadow: var(--glow); }
+
+    /* MAIN CONTENT */
+    .main { margin-top: 64px; flex: 1; }
+    .page { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* HERO */
+    .hero {
+      position: relative; min-height: 88vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; text-align: center; padding: 4rem 2rem;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(123,47,255,0.25) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 20%, rgba(0,229,255,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 50% at 20% 80%, rgba(255,45,120,0.1) 0%, transparent 60%),
+                  var(--bg-deep);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; opacity: 0.07;
+      background-image: linear-gradient(rgba(0,229,255,0.5) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,229,255,0.5) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; }
+    .hero-badge {
+      display: inline-block; margin-bottom: 1.5rem;
+      padding: 0.3rem 1rem; border-radius: 20px;
+      border: 1px solid rgba(0,229,255,0.4); font-size: 0.8rem;
+      font-family: var(--font-display); letter-spacing: 2px;
+      color: var(--accent); background: rgba(0,229,255,0.08);
+    }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900; line-height: 1.05; margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+    }
+    .hero h1 .line1 { color: var(--text); }
+    .hero h1 .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.2rem; color: var(--text-muted); max-width: 550px;
+      margin: 0 auto 2.5rem; line-height: 1.6; font-weight: 400;
+    }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-hero {
+      padding: 0.85rem 2.5rem; border-radius: 8px; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; border: none;
+      background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%);
+      color: var(--bg-deep);
+      transition: all 0.25s; box-shadow: 0 0 30px rgba(0,229,255,0.35);
+    }
+    .btn-hero:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,229,255,0.5); }
+    .btn-hero-outline {
+      padding: 0.85rem 2.5rem; border-radius: 8px; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      background: transparent; color: var(--text);
+      border: 1px solid rgba(255,255,255,0.2); transition: all 0.25s;
+    }
+    .btn-hero-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.07); }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem; display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* SECTION */
+    .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2rem; }
+    .section-title {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+      color: var(--text); letter-spacing: 1px;
+    }
+    .section-title span { color: var(--accent); }
+    .see-all { font-size: 0.85rem; color: var(--accent); cursor: pointer; font-weight: 600; letter-spacing: 0.5px; }
+    .see-all:hover { text-decoration: underline; }
+
+    /* GAME CARDS */
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; }
+    .game-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; cursor: pointer;
+      transition: all 0.25s; position: relative;
+    }
+    .game-card:hover {
+      transform: translateY(-4px); border-color: var(--accent);
+      box-shadow: 0 8px 32px rgba(0,229,255,0.2);
+    }
+    .game-thumb {
+      width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden;
+    }
+    .game-thumb-img {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; transition: transform 0.3s;
+    }
+    .game-card:hover .game-thumb-img { transform: scale(1.05); }
+    .game-badge {
+      position: absolute; top: 8px; left: 8px;
+      padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem;
+      font-family: var(--font-display); font-weight: 700; letter-spacing: 0.5px;
+    }
+    .badge-new { background: var(--accent3); color: #fff; }
+    .badge-sale { background: var(--gold); color: var(--bg-deep); }
+    .badge-hot { background: #ff6b00; color: #fff; }
+    .wishlist-btn {
+      position: absolute; top: 8px; right: 8px;
+      width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer;
+      background: rgba(0,0,0,0.6); color: var(--text-muted); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .wishlist-btn.active { color: var(--accent3); }
+    .wishlist-btn:hover { background: rgba(0,0,0,0.85); }
+    .game-info { padding: 0.85rem; }
+    .game-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .game-genre { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .game-footer { display: flex; align-items: center; justify-content: space-between; }
+    .game-price { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--accent); }
+    .game-price-old { font-size: 0.78rem; color: var(--text-muted); text-decoration: line-through; }
+    .game-rating { font-size: 0.8rem; color: var(--gold); }
+    .btn-add {
+      padding: 0.3rem 0.7rem; border-radius: 5px; cursor: pointer; font-size: 0.75rem;
+      font-family: var(--font-display); font-weight: 700; letter-spacing: 0.5px;
+      background: rgba(0,229,255,0.12); color: var(--accent); border: 1px solid rgba(0,229,255,0.3);
+      transition: all 0.2s;
+    }
+    .btn-add:hover { background: rgba(0,229,255,0.25); box-shadow: 0 0 10px rgba(0,229,255,0.3); }
+
+    /* FEATURED BANNER */
+    .featured-banner {
+      margin: 2rem 0; border-radius: 16px; overflow: hidden;
+      background: linear-gradient(135deg, #1a0a2e, #0a1a2e);
+      border: 1px solid var(--border2); position: relative; padding: 3rem 2.5rem;
+    }
+    .featured-banner::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.5;
+      background: radial-gradient(ellipse at 70% 50%, rgba(123,47,255,0.4), transparent 60%);
+    }
+    .featured-content { position: relative; z-index: 1; max-width: 500px; }
+    .featured-tag {
+      display: inline-block; margin-bottom: 1rem;
+      padding: 0.2rem 0.8rem; border-radius: 4px; font-size: 0.72rem;
+      font-family: var(--font-display); letter-spacing: 1.5px; text-transform: uppercase;
+      background: var(--accent2); color: #fff;
+    }
+    .featured-title {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 900;
+      color: var(--text); margin-bottom: 0.75rem; line-height: 1.1;
+    }
+    .featured-desc { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.5; }
+    .featured-price { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--accent); margin-bottom: 1.5rem; }
+    .featured-emoji { position: absolute; right: 2.5rem; top: 50%; transform: translateY(-50%); font-size: 8rem; opacity: 0.6; }
+
+    /* CATEGORIES */
+    .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .cat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.25rem 1rem; text-align: center; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-card:hover { border-color: var(--accent2); background: var(--bg-card2); transform: translateY(-2px); }
+    .cat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .cat-name { font-weight: 600; font-size: 0.9rem; }
+    .cat-count { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* LOGIN PAGE */
+    .auth-page {
+      min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(123,47,255,0.18) 0%, transparent 70%), var(--bg-deep);
+      padding: 2rem;
+    }
+    .auth-card {
+      background: var(--bg-card); border: 1px solid var(--border2); border-radius: 16px;
+      padding: 2.5rem 2rem; width: 100%; max-width: 420px;
+      box-shadow: 0 0 60px rgba(123,47,255,0.15);
+    }
+    .auth-logo { text-align: center; margin-bottom: 2rem; }
+    .auth-logo-text {
+      font-family: var(--font-display); font-size: 1.8rem; font-weight: 900;
+      color: var(--accent); letter-spacing: 3px; text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    }
+    .auth-logo-text span { color: var(--accent2); }
+    .auth-subtitle { font-size: 0.9rem; color: var(--text-muted); text-align: center; margin-bottom: 2rem; }
+    .auth-tabs { display: flex; margin-bottom: 1.75rem; border-radius: 8px; background: var(--bg-dark); padding: 4px; }
+    .auth-tab {
+      flex: 1; padding: 0.55rem; border-radius: 6px; text-align: center; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;
+      color: var(--text-muted); border: none; background: none; transition: all 0.2s;
+    }
+    .auth-tab.active { background: var(--bg-card2); color: var(--accent); }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.4rem; letter-spacing: 0.5px; font-weight: 600; }
+    .form-input {
+      width: 100%; padding: 0.7rem 1rem; border-radius: 8px;
+      background: var(--bg-dark); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--font-body); font-size: 0.95rem; transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,229,255,0.1); }
+    .form-input::placeholder { color: var(--text-muted); }
+    .btn-full {
+      width: 100%; padding: 0.85rem; border-radius: 8px; cursor: pointer;
+      font-family: var(--font-display); font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; border: none;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: var(--bg-deep); margin-top: 0.5rem; transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(0,229,255,0.25);
+    }
+    .btn-full:hover { box-shadow: 0 4px 30px rgba(0,229,255,0.5); transform: translateY(-1px); }
+    .auth-divider { text-align: center; color: var(--text-muted); font-size: 0.82rem; margin: 1.25rem 0; }
+    .social-btn {
+      width: 100%; padding: 0.7rem; border-radius: 8px; cursor: pointer; margin-bottom: 0.6rem;
+      background: var(--bg-dark); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+    }
+    .social-btn:hover { border-color: var(--accent); }
+    .forgot-link { text-align: right; font-size: 0.8rem; color: var(--accent); cursor: pointer; margin-top: 0.3rem; }
+
+    /* COMPRAR PAGE */
+    .store-header {
+      background: linear-gradient(180deg, rgba(123,47,255,0.15), transparent);
+      padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border);
+    }
+    .store-title { font-family: var(--font-display); font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .store-subtitle { color: var(--text-muted); }
+    .store-filters {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+      padding: 1.25rem 2rem; background: var(--bg-card); border-bottom: 1px solid var(--border);
+      max-width: 1200px; margin: 0 auto;
+    }
+    .filter-btn {
+      padding: 0.4rem 1rem; border-radius: 20px; cursor: pointer; font-size: 0.82rem;
+      font-weight: 600; font-family: var(--font-body); letter-spacing: 0.3px;
+      background: var(--bg-dark); color: var(--text-muted); border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .filter-btn.active { background: rgba(0,229,255,0.12); color: var(--accent); border-color: rgba(0,229,255,0.4); }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .search-bar {
+      flex: 1; max-width: 280px; padding: 0.4rem 1rem; border-radius: 20px;
+      background: var(--bg-dark); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--font-body); font-size: 0.88rem; outline: none;
+    }
+    .search-bar:focus { border-color: var(--accent); }
+    .search-bar::placeholder { color: var(--text-muted); }
+
+    /* WISHLIST */
+    .wishlist-empty { text-align: center; padding: 5rem 2rem; }
+    .wishlist-empty-icon { font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.4; }
+    .wishlist-empty h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .wishlist-empty p { color: var(--text-muted); }
+    .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+    .wishlist-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      display: flex; gap: 1rem; padding: 1rem; align-items: center;
+    }
+    .wl-thumb { font-size: 3rem; flex-shrink: 0; width: 64px; text-align: center; }
+    .wl-info { flex: 1; }
+    .wl-title { font-weight: 600; margin-bottom: 0.2rem; }
+    .wl-genre { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .wl-price { font-family: var(--font-display); font-size: 1rem; color: var(--accent); font-weight: 700; }
+    .wl-actions { display: flex; flex-direction: column; gap: 0.4rem; }
+    .btn-remove {
+      padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; font-size: 0.72rem;
+      background: rgba(255,45,120,0.1); color: var(--accent3); border: 1px solid rgba(255,45,120,0.3);
+      font-weight: 600; transition: all 0.2s;
+    }
+    .btn-remove:hover { background: rgba(255,45,120,0.2); }
+
+    /* CART / PAYMENT */
+    .checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    @media (max-width: 768px) {
+      .checkout-layout { grid-template-columns: 1fr; }
+      .navbar { padding: 0 1rem; }
+      .hero h1 { font-size: 2rem; }
+      .featured-emoji { display: none; }
+      .nav-links { display: none; }
+      .stats-bar { gap: 2rem; }
+      .featured-banner { padding: 2rem 1.5rem; }
+    }
+    .checkout-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;
+    }
+    .checkout-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; letter-spacing: 1px; color: var(--accent); }
+    .cart-item { display: flex; gap: 1rem; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--border); }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-thumb { font-size: 2.5rem; flex-shrink: 0; }
+    .cart-item-info { flex: 1; }
+    .cart-item-title { font-weight: 600; margin-bottom: 0.2rem; }
+    .cart-item-genre { font-size: 0.8rem; color: var(--text-muted); }
+    .cart-item-price { font-family: var(--font-display); font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .btn-trash {
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      color: var(--text-muted); transition: color 0.2s; padding: 0.2rem;
+    }
+    .btn-trash:hover { color: var(--accent3); }
+    .order-summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.92rem; }
+    .order-summary-row.total { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 0.5rem; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+    .payment-methods { display: flex; gap: 0.6rem; margin-bottom: 1.25rem; }
+    .pay-method {
+      flex: 1; padding: 0.6rem 0.4rem; border-radius: 8px; cursor: pointer; text-align: center;
+      background: var(--bg-dark); border: 1px solid var(--border); font-size: 0.78rem;
+      font-weight: 600; transition: all 0.2s; color: var(--text-muted);
+    }
+    .pay-method.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.08); }
+    .pay-method:hover { border-color: var(--accent); }
+    .pay-icon { font-size: 1.3rem; display: block; margin-bottom: 0.2rem; }
+    .card-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .pix-box {
+      text-align: center; padding: 1.5rem; background: var(--bg-dark); border-radius: 10px;
+      border: 1px dashed rgba(0,229,255,0.3);
+    }
+    .pix-qr { font-size: 6rem; margin-bottom: 0.75rem; }
+    .pix-code { font-family: monospace; font-size: 0.7rem; color: var(--text-muted); word-break: break-all; }
+    .security-badges { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+    .security-badge { font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem; }
+
+    /* CONFIRMATION */
+    .confirmation-page { text-align: center; padding: 5rem 2rem; max-width: 600px; margin: 0 auto; }
+    .confirm-icon { font-size: 5rem; margin-bottom: 1.5rem; animation: pop 0.5s ease; }
+    @keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .confirm-title { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--accent); margin-bottom: 0.75rem; }
+    .confirm-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.6; }
+    .confirm-order-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; margin-bottom: 2rem; text-align: left;
+    }
+    .confirm-order-title { font-family: var(--font-display); font-size: 0.85rem; color: var(--accent); margin-bottom: 1rem; letter-spacing: 1px; }
+    .confirm-row { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.9rem; }
+    .confirm-row .label { color: var(--text-muted); }
+    .confirm-games { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .confirm-game-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; }
+    .confirm-steps { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+    .confirm-step {
+      display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; text-align: left;
+    }
+    .step-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .step-text { font-size: 0.9rem; }
+    .step-text strong { display: block; margin-bottom: 0.1rem; }
+    .step-text span { color: var(--text-muted); font-size: 0.82rem; }
+
+    /* FOOTER */
+    .footer {
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem 1.5rem; margin-top: auto;
+    }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto 2rem; }
+    .footer-brand { max-width: 240px; }
+    .footer-logo { font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; color: var(--accent); letter-spacing: 2px; margin-bottom: 0.75rem; }
+    .footer-logo span { color: var(--accent2); }
+    .footer-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .footer-col-title { font-family: var(--font-display); font-size: 0.78rem; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 1rem; font-weight: 700; }
+    .footer-link { display: block; font-size: 0.87rem; color: var(--text-muted); margin-bottom: 0.5rem; cursor: pointer; transition: color 0.2s; }
+    .footer-link:hover { color: var(--text); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+    .footer-copy { font-size: 0.8rem; color: var(--text-muted); }
+    .footer-socials { display: flex; gap: 0.75rem; }
+    .social-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--bg-dark); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+    .social-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* TOAST */
+    .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 0.6rem; }
+    .toast {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.85rem 1.25rem;
+      font-size: 0.9rem; font-weight: 500;
+      animation: slideIn 0.3s ease; min-width: 240px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .toast.success { border-color: rgba(0,229,255,0.4); color: var(--accent); }
+    .toast.error { border-color: rgba(255,45,120,0.4); color: var(--accent3); }
+    @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* PAGE TITLE BAR */
+    .page-title-bar {
+      background: linear-gradient(180deg, rgba(123,47,255,0.12), transparent);
+      padding: 2.5rem 2rem 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .page-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; }
+    .page-title span { color: var(--accent); }
+    .page-breadcrumb { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .page-breadcrumb b { color: var(--text); }
+
+    /* PIX success animation */
+    .pix-success { color: #00e676; font-size: 0.9rem; margin-top: 0.5rem; }
+
+    /* Coupon */
+    .coupon-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .coupon-input { flex: 1; padding: 0.55rem 0.85rem; border-radius: 7px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text); font-size: 0.88rem; outline: none; font-family: var(--font-body); }
+    .coupon-input:focus { border-color: var(--accent); }
+    .btn-coupon { padding: 0.55rem 1rem; border-radius: 7px; cursor: pointer; background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.35); color: var(--accent); font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+    .btn-coupon:hover { background: rgba(0,229,255,0.2); }
+
+    /* Progress bar */
+    .progress-bar-wrap { background: var(--bg-dark); border-radius: 4px; height: 4px; margin-bottom: 1.5rem; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 4px; transition: width 0.4s; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="react.production.min.js"></script>
+<script src="react-dom.production.min.js"></script>
+<script>
+'use strict';
+const { useState, useEffect, useCallback } = React;
+const { createRoot } = ReactDOM;
+
+// ─── DADOS ─────────────────────────────────────────────────────────────────
+
+
+const CATEGORIES = [
+  { name:'RPG', icon:'⚔️', count:42 },
+  { name:'Ação', icon:'💥', count:89 },
+  { name:'Estratégia', icon:'♟️', count:31 },
+  { name:'Corrida', icon:'🏎️', count:18 },
+  { name:'Puzzle', icon:'🧩', count:27 },
+  { name:'Terror', icon:'👻', count:15 },
+  { name:'Esporte', icon:'⚽', count:22 },
+  { name:'FPS', icon:'🎯', count:34 },
+];
+
+// ─── TOAST ─────────────────────────────────────────────────────────────────
+let toastSetter = null;
+function showToast(msg, type='success') {
+  if(toastSetter) toastSetter(prev => {
+    const t = { id: Date.now(), msg, type };
+    setTimeout(() => toastSetter(p => p.filter(x => x.id !== t.id)), 3000);
+    return [...prev, t];
+  });
+}
+
+function ToastContainer() {
+  const [toasts, setToasts] = useState([]);
+  useEffect(() => { toastSetter = setToasts; return () => { toastSetter = null; }; }, []);
+  return React.createElement('div', { className:'toast-container' },
+    toasts.map(t => React.createElement('div', { key:t.id, className:`toast ${t.type}` }, t.msg))
+  );
+}
+
+// ─── NAVBAR ────────────────────────────────────────────────────────────────
+function Navbar({ page, setPage, cart, wishlist, user, setUser }) {
+  const cartCount = cart.reduce((s,i) => s + (i.qty||1), 0);
+  return React.createElement('nav', { className:'navbar' },
+    React.createElement('div', { className:'nav-logo', onClick:()=>setPage('home') },
+      'CloudPlay', React.createElement('span',null,'Games')
+    ),
+    React.createElement('div', { className:'nav-links' },
+      ['home','comprar','lista de desejo'].map(p =>
+        React.createElement('button', {
+          key:p, className:`nav-link ${page === p.replace(/ /g,'-') ? 'active':''}`,
+          onClick:()=>setPage(p.replace(/ /g,'-'))
+        }, p.toUpperCase())
+      )
+    ),
+    React.createElement('div', { className:'nav-actions' },
+      React.createElement('button', { className:'cart-btn', onClick:()=>setPage('pagamento') },
+        '🛒',
+        cartCount > 0 && React.createElement('span', { className:'cart-badge' }, cartCount)
+      ),
+      user
+        ? React.createElement('button', { className:'btn-outline', onClick:()=>{ setUser(null); localStorage.removeItem('cpg_token'); showToast('Até logo! 👋'); } }, 'SAIR')
+        : React.createElement('button', { className:'btn-primary', onClick:()=>setPage('login') }, 'ENTRAR')
+    )
+  );
+}
+
+// ─── GAME CARD ─────────────────────────────────────────────────────────────
+function GameCard({ game, cart, setCart, wishlist, setWishlist }) {
+  const inWish = wishlist.some(w => w.id === game.id);
+  const inCart = cart.some(c => c.id === game.id);
+
+  const addToCart = () => {
+    if(inCart) { showToast('Já está no carrinho! 🛒'); return; }
+    setCart(prev => [...prev, { ...game, qty:1 }]);
+    showToast(`${game.title} adicionado ao carrinho! 🎮`);
+  };
+
+  const toggleWish = (e) => {
+    e.stopPropagation();
+    if(inWish) { setWishlist(prev => prev.filter(w => w.id !== game.id)); showToast('Removido da lista de desejo'); }
+    else { setWishlist(prev => [...prev, game]); showToast(`${game.title} na lista de desejo! ❤️`); }
+  };
+
+  const badgeClass = game.badge === 'new' ? 'badge-new' : game.badge === 'sale' ? 'badge-sale' : 'badge-hot';
+  const colors = ['#1a1030','#0a1a30','#0a2010','#201010','#1a1520','#102020','#202010','#101820'];
+
+  return React.createElement('div', { className:'game-card' },
+    React.createElement('div', { className:'game-thumb' },
+     React.createElement('img', {
+        className:'game-thumb-img',
+        src: game.image,
+        alt: game.title,
+        style:{ objectFit: 'cover', background: '#12121f' }
+      }),
+      game.badge && React.createElement('span', { className:`game-badge ${badgeClass}` },
+        game.badge === 'new' ? 'NOVO' : game.badge === 'sale' ? 'OFERTA' : '🔥 HOT'
+      ),
+      React.createElement('button', {
+        className:`wishlist-btn ${inWish?'active':''}`,
+        onClick: toggleWish
+      }, inWish ? '❤️' : '🤍')
+    ),
+    React.createElement('div', { className:'game-info' },
+      React.createElement('div', { className:'game-title' }, game.title),
+      React.createElement('div', { className:'game-genre' }, game.genre),
+      React.createElement('div', { className:'game-footer' },
+        React.createElement('div', null,
+          React.createElement('div', { className:'game-rating' }, '★'.repeat(Math.round(game.rating)) + ` ${game.rating}`),
+          React.createElement('div', { style:{ display:'flex', gap:'0.4rem', alignItems:'baseline' } },
+            React.createElement('span', { className:'game-price' },
+              game.price === 0 ? 'GRÁTIS' : `R$ ${game.price.toFixed(2)}`
+            ),
+            game.oldPrice && React.createElement('span', { className:'game-price-old' }, `R$ ${game.oldPrice.toFixed(2)}`)
+          )
+        ),
+        React.createElement('button', { className:'btn-add', onClick: addToCart },
+          game.price === 0 ? 'BAIXAR' : inCart ? '✓' : '+'
+        )
+      )
+    )
+  );
+}
+
+// ─── HOME PAGE ─────────────────────────────────────────────────────────────
+function HomePage({ games, setPage, cart, setCart, wishlist, setWishlist, setGlobalFilter }) {
+  return React.createElement('div', { className:'page' },
+    React.createElement('div', { className:'hero' },
+      React.createElement('div', { className:'hero-bg' }),
+      React.createElement('div', { className:'hero-grid' }),
+      React.createElement('div', { className:'hero-content' },
+        React.createElement('div', { className:'hero-badge' }, '⚡ NOVA TEMPORADA: INVERNO DIGITAL 2026'),
+        React.createElement('h1', null,
+          React.createElement('span', { className:'line1' }, 'Seu Universo'),
+          React.createElement('span', { className:'line2' }, 'Gamer Começa Aqui')
+        ),
+        React.createElement('p', { className:'hero-sub' },
+          'Milhares de jogos. Preços imbatíveis. Download imediato. Entre na CloudPlayGames e eleve seu nível.'
+        ),
+        React.createElement('div', { className:'hero-cta' },
+          React.createElement('button', { className:'btn-hero', onClick:()=>setPage('comprar') }, 'EXPLORAR LOJA'),
+          React.createElement('button', { className:'btn-hero-outline', onClick:()=>setPage('login') }, 'CRIAR CONTA')
+        )
+      )
+    ),
+    React.createElement('div', { className:'stats-bar' },
+      [['12.000+','Jogos'],['2.4M','Jogadores'],['98%','Satisfação'],['24/7','Suporte']].map(([n,l]) =>
+        React.createElement('div', { key:l, className:'stat-item' },
+          React.createElement('div', { className:'stat-num' }, n),
+          React.createElement('div', { className:'stat-label' }, l)
+        )
+      )
+    ),
+    React.createElement('div', { className:'section' },
+     React.createElement('div', { className:'featured-banner' },
+        React.createElement('div', { className:'featured-content' },
+          React.createElement('span', { className:'featured-tag' }, '🏆 JOGO DA SEMANA'),
+          React.createElement('h2', { className:'featured-title' }, 'Death Stranding Director\'s Cut'),
+          React.createElement('p', { className:'featured-desc' }, 'Reconecte uma sociedade fraturada entregando cargas essenciais em um mundo pós-apocalíptico deslumbrante e cheio de perigos sobrenaturais.'),
+          React.createElement('div', { className:'featured-price' }, 'R$ 159,90'),
+          React.createElement('div', { style:{ display:'flex', gap:'0.75rem', alignItems:'center' } },
+            React.createElement('button', {
+              className:'btn-hero',
+              onClick:() => { 
+                const destaque = games.find(g => g.id === 4); 
+                setCart(prev => prev.some(c=>c.id===4) ? prev : [...prev, {...destaque, qty:1}]); 
+                showToast('Death Stranding no carrinho! 📦'); 
+              }
+            }, 'COMPRAR AGORA'),
+            React.createElement('span', { style:{ color:'var(--text-muted)', fontSize:'0.85rem' } }, '⭐ 4.7 — 42k reviews')
+          )
+        ),
+        React.createElement('img', { 
+          src: 'https://image.api.playstation.com/vulcan/ap/rnd/202106/2214/UXDlNJfdtZJ080ONmH8q3CUX.png',
+          alt: 'Death Stranding Destaque',
+          style: { 
+            position: 'absolute', 
+            right: '2.5rem', 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            height: '240px',
+            width: '180px',
+            borderRadius: '12px',
+            objectFit: 'cover',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            zIndex: 0
+          } 
+        })
+      ),
+      React.createElement('div', { className:'section-header' },
+        React.createElement('h2', { className:'section-title' }, React.createElement('span',null,'//'), ' MAIS VENDIDOS'),
+        React.createElement('span', { className:'see-all', onClick:()=>setPage('comprar') }, 'Ver todos →')
+      ),
+      React.createElement('div', { className:'games-grid' },
+        games.slice(0,4).map(g =>
+          React.createElement(GameCard, { key:g.id, game:g, cart, setCart, wishlist, setWishlist })
+        )
+      ),
+      React.createElement('div', { className:'section-header', style:{ marginTop:'3rem' } },
+        React.createElement('h2', { className:'section-title' }, React.createElement('span',null,'//'), ' CATEGORIAS')
+      ),
+      React.createElement('div', { className:'categories-grid' },
+        CATEGORIES.map(c =>
+          React.createElement('div', { key:c.name, className:'cat-card', onClick:() => { setGlobalFilter(c.name); setPage('comprar'); } },
+            React.createElement('div', { className:'cat-icon' }, c.icon),
+            React.createElement('div', { className:'cat-name' }, c.name),
+            React.createElement('div', { className:'cat-count' }, `${c.count} jogos`)
+          )
+        )
+      ),
+      React.createElement('div', { className:'section-header', style:{ marginTop:'3rem' } },
+        React.createElement('h2', { className:'section-title' }, React.createElement('span',null,'//'), ' LANÇAMENTOS'),
+        React.createElement('span', { className:'see-all', onClick:()=>setPage('comprar') }, 'Ver todos →')
+      ),
+      React.createElement('div', { className:'games-grid' },
+        games.slice(4).map(g =>
+          React.createElement(GameCard, { key:g.id, game:g, cart, setCart, wishlist, setWishlist })
+        )
+      )
+    )
+  );
+}
+
+// ─── LOGIN PAGE ─────────────────────────────────────────────────────────────
+function LoginPage({ setPage, setUser }) {
+  const [tab, setTab] = useState('login');
+  const [form, setForm] = useState({ email:'', password:'', name:'', confirm:'' });
+  const [loading, setLoading] = useState(false);
+
+  const upd = (k,v) => setForm(p=>({...p,[k]:v}));
+
+  const handleSubmit = async () => {
+    if(!form.email || !form.password) { showToast('Preencha todos os campos!', 'error'); return; }
+    if(tab==='register' && form.password !== form.confirm) { showToast('Senhas não coincidem!', 'error'); return; }
+    if(tab==='register' && form.password.length < 6) { showToast('Senha deve ter pelo menos 6 caracteres!', 'error'); return; }
+    setLoading(true);
+    try {
+      const endpoint = tab === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const body = tab === 'login'
+        ? { email: form.email, password: form.password }
+        : { name: form.name || form.email.split('@')[0], email: form.email, password: form.password };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error || 'Erro ao autenticar.', 'error'); return; }
+      localStorage.setItem('cpg_token', data.token);
+      setUser(data.user);
+      showToast(tab==='login' ? '🎮 Bem-vindo de volta!' : '🚀 Conta criada com sucesso!');
+      setPage('home');
+    } catch(err) {
+      showToast('Erro de conexão com o servidor.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return React.createElement('div', { className:'auth-page' },
+    React.createElement('div', { className:'auth-card' },
+      React.createElement('div', { className:'auth-logo' },
+        React.createElement('div', { className:'auth-logo-text' }, 'CloudPlay', React.createElement('span',null,'Games'))
+      ),
+      React.createElement('p', { className:'auth-subtitle' },
+        tab==='login' ? 'Acesse sua conta e continue jogando' : 'Crie sua conta e junte-se a 2.4M de gamers'
+      ),
+      React.createElement('div', { className:'auth-tabs' },
+        React.createElement('button', { className:`auth-tab ${tab==='login'?'active':''}`, onClick:()=>setTab('login') }, 'ENTRAR'),
+        React.createElement('button', { className:`auth-tab ${tab==='register'?'active':''}`, onClick:()=>setTab('register') }, 'CADASTRAR')
+      ),
+      tab==='register' && React.createElement('div', { className:'form-group' },
+        React.createElement('label', { className:'form-label' }, 'NOME DE USUÁRIO'),
+        React.createElement('input', { className:'form-input', placeholder:'Seu nickname gamer', value:form.name, onChange:e=>upd('name',e.target.value) })
+      ),
+      React.createElement('div', { className:'form-group' },
+        React.createElement('label', { className:'form-label' }, 'E-MAIL'),
+        React.createElement('input', { className:'form-input', type:'email', placeholder:'seu@email.com', value:form.email, onChange:e=>upd('email',e.target.value) })
+      ),
+      React.createElement('div', { className:'form-group' },
+        React.createElement('label', { className:'form-label' }, 'SENHA'),
+        React.createElement('input', { className:'form-input', type:'password', placeholder:'••••••••', value:form.password, onChange:e=>upd('password',e.target.value) }),
+        tab==='login' && React.createElement('div', { className:'forgot-link' }, 'Esqueci minha senha')
+      ),
+      tab==='register' && React.createElement('div', { className:'form-group' },
+        React.createElement('label', { className:'form-label' }, 'CONFIRMAR SENHA'),
+        React.createElement('input', { className:'form-input', type:'password', placeholder:'••••••••', value:form.confirm, onChange:e=>upd('confirm',e.target.value) })
+      ),
+      React.createElement('button', { className:'btn-full', onClick:handleSubmit, disabled:loading },
+        loading ? '⏳ CARREGANDO...' : tab==='login' ? 'ENTRAR NA PLATAFORMA' : 'CRIAR CONTA'
+      ),
+      React.createElement('div', { className:'auth-divider' }, '— ou continue com —'),
+      React.createElement('button', { className:'social-btn', onClick:()=>{ setUser({name:'Gamer Google',email:'gamer@gmail.com'}); showToast('🎮 Entrou com Google!'); setPage('home'); } }, '🟡 Entrar com Google'),
+      React.createElement('button', { className:'social-btn' }, '⬛ Entrar com Discord')
+    )
+  );
+}
+
+// ─── COMPRAR PAGE ──────────────────────────────────────────────────────────
+function ComprarPage({ games, cart, setCart, wishlist, setWishlist, globalFilter, setGlobalFilter }) {
+  const [search, setSearch] = useState('');
+  const filters = ['Todos','RPG','Ação','FPS','Puzzle','Estratégia','Terror','Esporte','Ofertas','Grátis'];
+
+  const filtered = games.filter(g => {
+    const matchSearch = g.title.toLowerCase().includes(search.toLowerCase()) || g.genre.toLowerCase().includes(search.toLowerCase());
+    if(globalFilter === 'Todos') return matchSearch;
+    if(globalFilter === 'Ofertas') return matchSearch && g.oldPrice;
+    if(globalFilter === 'Grátis') return matchSearch && g.price===0;
+    return matchSearch && g.genre.toLowerCase().includes(globalFilter.toLowerCase());
+  });
+
+  return React.createElement('div', { className:'page' },
+    React.createElement('div', { className:'store-header' },
+      React.createElement('h1', { className:'store-title' }, '🎮 Loja de Jogos'),
+      React.createElement('p', { className:'store-subtitle' }, `${games.length} jogos disponíveis • Novidades toda semana`)
+    ),
+    React.createElement('div', { className:'store-filters' },
+      React.createElement('input', { className:'search-bar', placeholder:'🔍 Buscar jogos...', value:search, onChange:e=>setSearch(e.target.value) }),
+      filters.map(f =>
+        React.createElement('button', { key:f, className:`filter-btn ${globalFilter===f?'active':''}`, onClick:()=>setGlobalFilter(f) }, f)
+      )
+    ),
+    React.createElement('div', { className:'section' },
+      filtered.length === 0
+        ? React.createElement('div', { style:{ textAlign:'center', padding:'4rem', color:'var(--text-muted)' } }, '😕 Nenhum jogo encontrado')
+        : React.createElement('div', { className:'games-grid' },
+            filtered.map(g => React.createElement(GameCard, { key:g.id, game:g, cart, setCart, wishlist, setWishlist }))
+          )
+    )
+  );
+}
+
+// ─── WISHLIST PAGE ─────────────────────────────────────────────────────────
+function WishlistPage({ wishlist, setWishlist, cart, setCart }) {
+  return React.createElement('div', { className:'page' },
+    React.createElement('div', { className:'page-title-bar' },
+      React.createElement('div', { style:{maxWidth:'1200px',margin:'0 auto'} },
+        React.createElement('div', { className:'page-breadcrumb' }, 'Home > ', React.createElement('b',null,'Lista de Desejo')),
+        React.createElement('h1', { className:'page-title' }, React.createElement('span',null,'❤️'), ' Minha Lista de Desejo'),
+        React.createElement('p', { style:{color:'var(--text-muted)',marginTop:'0.3rem'} }, `${wishlist.length} ${wishlist.length===1?'jogo':'jogos'} salvos`)
+      )
+    ),
+    React.createElement('div', { className:'section' },
+      wishlist.length === 0
+        ? React.createElement('div', { className:'wishlist-empty' },
+            React.createElement('div', { className:'wishlist-empty-icon' }, '💔'),
+            React.createElement('h2', null, 'Lista vazia'),
+            React.createElement('p', null, 'Adicione jogos à sua lista usando o botão ❤️ nos cards.')
+          )
+        : React.createElement('div', { className:'wishlist-grid' },
+            wishlist.map(g =>
+              React.createElement('div', { key:g.id, className:'wishlist-card' },
+                React.createElement('img', {
+                  className:'wl-thumb', src:g.image, alt:g.title,
+                  style:{ width:'64px', height:'80px', objectFit:'cover', borderRadius:'6px', flexShrink:0, background:'#12121f' }
+                }),
+                React.createElement('div', { className:'wl-info' },
+                  React.createElement('div', { className:'wl-title' }, g.title),
+                  React.createElement('div', { className:'wl-genre' }, g.genre),
+                  React.createElement('div', { className:'wl-price' }, g.price===0?'GRÁTIS':`R$ ${g.price.toFixed(2)}`)
+                ),
+                React.createElement('div', { className:'wl-actions' },
+                  React.createElement('button', {
+                    className:'btn-add', style:{ fontSize:'0.72rem' },
+                    onClick:()=>{ if(!cart.some(c=>c.id===g.id)){ setCart(p=>[...p,{...g,qty:1}]); showToast(`${g.title} no carrinho! 🛒`); } else { showToast('Já está no carrinho!'); } }
+                  }, '🛒 ADD'),
+                  React.createElement('button', {
+                    className:'btn-remove',
+                    onClick:()=>{ setWishlist(p=>p.filter(x=>x.id!==g.id)); showToast('Removido da lista'); }
+                  }, '✕ Remover')
+                )
+              )
+            )
+          )
+    )
+  );
+}
+
+// ─── PAGAMENTO PAGE ────────────────────────────────────────────────────────
+function PagamentoPage({ cart, setCart, setPage }) {
+  const [payMethod, setPayMethod] = useState('card');
+  const [coupon, setCoupon] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [form, setForm] = useState({ name:'', cardNum:'', expiry:'', cvv:'', cpf:'' });
+  const upd = (k,v) => setForm(p=>({...p,[k]:v}));
+
+  const subtotal = cart.reduce((s,i) => s + (i.price||0) * (i.qty||1), 0);
+  const frete = 0;
+  const total = Math.max(0, subtotal - discount + frete);
+
+  const applyCoupon = () => {
+    if(coupon.toUpperCase() === 'CloudPlay10') { setDiscount(subtotal*0.1); showToast('✅ Cupom aplicado! 10% de desconto'); }
+    else { showToast('Cupom inválido', 'error'); }
+  };
+
+  const handlePay = () => {
+    if(cart.length === 0) { showToast('Carrinho vazio!', 'error'); return; }
+    if(payMethod === 'card' && (!form.name || !form.cardNum || !form.expiry || !form.cvv)) {
+      showToast('Preencha os dados do cartão!', 'error'); return;
+    }
+    const token = localStorage.getItem('cpg_token');
+    if (!token) { showToast('Faça login para finalizar a compra!', 'error'); return; }
+    fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ cart, payMethod, total })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showToast('\u2705 ' + data.message);
+          setPage('confirmacao');
+          setCart([]);
+        } else {
+          showToast(data.message || 'Erro ao processar pagamento.', 'error');
+        }
+      })
+      .catch(() => {
+        showToast('Erro de conexão com o servidor.', 'error');
+      });
+  };
+
+ const methods = [
+    { id:'card', icon:'💳', label:'Cartão' },
+    { 
+      id:'pix', 
+      icon: React.createElement('img', { 
+        src: 'https://artpoin.com/wp-content/uploads/2023/09/artpoin-logo-pix.png', 
+        alt: 'Logo PIX', 
+        style: { width: '1.3rem', height: '1.3rem', objectFit: 'contain' } 
+      }), 
+      label:'PIX' 
+    },
+    { id:'boleto', icon:'🧾', label:'Boleto' },
+  ];
+
+  return React.createElement('div', { className:'page' },
+    React.createElement('div', { className:'page-title-bar' },
+      React.createElement('div', { style:{maxWidth:'1200px',margin:'0 auto'} },
+        React.createElement('div', { className:'page-breadcrumb' }, 'Loja > ', React.createElement('b',null,'Pagamento')),
+        React.createElement('h1', { className:'page-title' }, '🛒 Finalizar ', React.createElement('span',null,'Compra'))
+      )
+    ),
+    React.createElement('div', { className:'checkout-layout' },
+      // LEFT
+      React.createElement('div', null,
+        React.createElement('div', { className:'checkout-card', style:{marginBottom:'1rem'} },
+          React.createElement('div', { className:'checkout-title' }, '// ITENS DO CARRINHO'),
+          cart.length === 0
+            ? React.createElement('p', { style:{color:'var(--text-muted)',textAlign:'center',padding:'2rem'} }, 'Carrinho vazio! Adicione jogos na loja.')
+            : cart.map(i =>
+                React.createElement('div', { key:i.id, className:'cart-item' },
+                  React.createElement('img', {
+                    className:'cart-item-thumb', src:i.image, alt:i.title,
+                    style:{ width:'48px', height:'64px', objectFit:'cover', borderRadius:'6px', flexShrink:0, background:'#12121f' }
+                  }),
+                  React.createElement('div', { className:'cart-item-info' },
+                    React.createElement('div', { className:'cart-item-title' }, i.title),
+                    React.createElement('div', { className:'cart-item-genre' }, i.genre)
+                  ),
+                  React.createElement('div', { className:'cart-item-price' }, i.price===0?'GRÁTIS':`R$ ${i.price.toFixed(2)}`),
+                  React.createElement('button', {
+                    className:'btn-trash',
+                    onClick:()=>{ setCart(p=>p.filter(c=>c.id!==i.id)); showToast('Item removido'); }
+                  }, '🗑️')
+                )
+              )
+        ),
+        React.createElement('div', { className:'checkout-card' },
+          React.createElement('div', { className:'checkout-title' }, '// MÉTODO DE PAGAMENTO'),
+          React.createElement('div', { className:'payment-methods' },
+            methods.map(m =>
+              React.createElement('div', { key:m.id, className:`pay-method ${payMethod===m.id?'active':''}`, onClick:()=>setPayMethod(m.id) },
+                React.createElement('span', { className:'pay-icon' }, m.icon), m.label
+              )
+            )
+          ),
+          payMethod === 'card' && React.createElement('div', null,
+            React.createElement('div', { className:'form-group' },
+              React.createElement('label', { className:'form-label' }, 'NOME NO CARTÃO'),
+              React.createElement('input', { className:'form-input', placeholder:'Nome como no cartão', value:form.name, onChange:e=>upd('name',e.target.value) })
+            ),
+            React.createElement('div', { className:'form-group' },
+              React.createElement('label', { className:'form-label' }, 'NÚMERO DO CARTÃO'),
+              React.createElement('input', { className:'form-input', placeholder:'0000 0000 0000 0000', value:form.cardNum, onChange:e=>upd('cardNum',e.target.value) })
+            ),
+            React.createElement('div', { className:'card-input-row' },
+              React.createElement('div', { className:'form-group' },
+                React.createElement('label', { className:'form-label' }, 'VALIDADE'),
+                React.createElement('input', { className:'form-input', placeholder:'MM/AA', value:form.expiry, onChange:e=>upd('expiry',e.target.value) })
+              ),
+              React.createElement('div', { className:'form-group' },
+                React.createElement('label', { className:'form-label' }, 'CVV'),
+                React.createElement('input', { className:'form-input', placeholder:'123', value:form.cvv, onChange:e=>upd('cvv',e.target.value) })
+              )
+            ),
+            React.createElement('div', { className:'form-group' },
+              React.createElement('label', { className:'form-label' }, 'CPF DO TITULAR'),
+              React.createElement('input', { className:'form-input', placeholder:'000.000.000-00', value:form.cpf, onChange:e=>upd('cpf',e.target.value) })
+            )
+          ),
+          payMethod === 'pix' && React.createElement('div', { className:'pix-box' },
+            React.createElement('div', { className:'pix-qr' }, '📱'),
+            React.createElement('p', { style:{marginBottom:'0.5rem',fontWeight:'600'} }, 'Pague com PIX'),
+            React.createElement('p', { style:{color:'var(--text-muted)',fontSize:'0.85rem',marginBottom:'0.75rem'} }, 'Copie a chave PIX ou escaneie o QR code'),
+            React.createElement('div', { className:'pix-code' }, 'CloudPlayGames@pix.com.br')
+          ),
+          payMethod === 'boleto' && React.createElement('div', { className:'pix-box' },
+            React.createElement('div', { className:'pix-qr' }, '🧾'),
+            React.createElement('p', { style:{marginBottom:'0.5rem',fontWeight:'600'} }, 'Boleto Bancário'),
+            React.createElement('p', { style:{color:'var(--text-muted)',fontSize:'0.85rem'} }, 'Vencimento em 3 dias úteis. Após pagamento, ativação em até 2 dias.')
+          ),
+          React.createElement('div', { className:'security-badges' },
+            ['🔒 SSL Seguro','✅ Dados Criptografados','🛡️ Compra Protegida'].map(b =>
+              React.createElement('span', { key:b, className:'security-badge' }, b)
+            )
+          )
+        )
+      ),
+      // RIGHT
+      React.createElement('div', null,
+        React.createElement('div', { className:'checkout-card', style:{position:'sticky',top:'80px'} },
+          React.createElement('div', { className:'checkout-title' }, '// RESUMO DO PEDIDO'),
+          React.createElement('div', { className:'coupon-row' },
+            React.createElement('input', { className:'coupon-input', placeholder:'Código do cupom', value:coupon, onChange:e=>setCoupon(e.target.value) }),
+            React.createElement('button', { className:'btn-coupon', onClick:applyCoupon }, 'APLICAR')
+          ),
+          React.createElement('p', { style:{fontSize:'0.72rem',color:'var(--text-muted)',marginBottom:'1rem'} }, 'Tente: CloudPlay10 para 10% off'),
+          React.createElement('div', { className:'order-summary-row' }, React.createElement('span',null,'Subtotal'), React.createElement('span',null,`R$ ${subtotal.toFixed(2)}`)),
+          discount > 0 && React.createElement('div', { className:'order-summary-row' }, React.createElement('span',{style:{color:'#00e676'}},`Desconto`), React.createElement('span',{style:{color:'#00e676'}},`-R$ ${discount.toFixed(2)}`)),
+          React.createElement('div', { className:'order-summary-row' }, React.createElement('span',null,'Frete'), React.createElement('span',{style:{color:'#00e676'}},frete===0?'GRÁTIS':`R$ ${frete.toFixed(2)}`)),
+          React.createElement('div', { className:'order-summary-row total' }, React.createElement('span',null,'TOTAL'), React.createElement('span',null,`R$ ${total.toFixed(2)}`)),
+          React.createElement('button', { className:'btn-full', style:{marginTop:'1.25rem'}, onClick:handlePay },
+            payMethod==='pix' ? '⚡ PAGAR COM PIX' : payMethod==='boleto' ? '🧾 GERAR BOLETO' : '💳 PAGAR AGORA'
+          ),
+          React.createElement('p', { style:{textAlign:'center',color:'var(--text-muted)',fontSize:'0.75rem',marginTop:'0.75rem'} }, 'Cancelamento gratuito em até 24h após a compra')
+        )
+      )
+    )
+  );
+}
+
+// ─── CONFIRMAÇÃO PAGE ───────────────────────────────────────────────────────
+function ConfirmacaoPage({ setPage, cart }) {
+  const orderNum = 'NXP-' + Math.floor(Math.random()*900000+100000);
+  const games = cart && cart.length > 0 ? cart : [];
+
+  return React.createElement('div', { className:'page' },
+    React.createElement('div', { className:'confirmation-page' },
+      React.createElement('div', { className:'confirm-icon' }, '✅'),
+      React.createElement('h1', { className:'confirm-title' }, 'PEDIDO CONFIRMADO!'),
+      React.createElement('p', { className:'confirm-sub' },
+        'Sua compra foi processada com sucesso. Seus jogos já estão disponíveis na sua biblioteca!'
+      ),
+      React.createElement('div', { className:'confirm-order-box' },
+        React.createElement('div', { className:'confirm-order-title' }, '// DETALHES DO PEDIDO'),
+        React.createElement('div', { className:'confirm-row' }, React.createElement('span',{className:'label'},'Número do pedido'), React.createElement('span',null,orderNum)),
+        React.createElement('div', { className:'confirm-row' }, React.createElement('span',{className:'label'},'Data'), React.createElement('span',null, new Date().toLocaleDateString('pt-BR'))),
+        React.createElement('div', { className:'confirm-row' }, React.createElement('span',{className:'label'},'Pagamento'), React.createElement('span',{style:{color:'#00e676'}},'✅ Aprovado')),
+        React.createElement('div', { className:'confirm-games' },
+          React.createElement('p', { style:{fontSize:'0.8rem',color:'var(--text-muted)',marginBottom:'0.5rem'} }, 'JOGOS ADQUIRIDOS:'),
+          games.map(g =>
+            React.createElement('div', { key:g.id, className:'confirm-game-item' },
+              React.createElement('img', {
+                src:g.image, alt:g.title,
+                style:{ width:'36px', height:'48px', objectFit:'cover', borderRadius:'4px', background:'#12121f' }
+              }),
+              React.createElement('span', { style:{flex:1} }, g.title),
+              React.createElement('span', { style:{color:'var(--accent)',fontFamily:'var(--font-display)',fontSize:'0.85rem'} }, g.price===0?'GRÁTIS':`R$ ${g.price.toFixed(2)}`)
+            )
+          )
+        )
+      ),
+      React.createElement('div', { className:'confirm-steps' },
+        [
+          { icon:'📧', title:'E-mail enviado', sub:'Confirmação no seu e-mail em até 5 minutos' },
+          { icon:'🎮', title:'Jogue agora', sub:'Acesse sua biblioteca e faça o download' },
+          { icon:'⭐', title:'Avalie o jogo', sub:'Sua opinião ajuda outros gamers!' },
+        ].map((s,i) =>
+          React.createElement('div', { key:i, className:'confirm-step' },
+            React.createElement('div', { className:'step-icon' }, s.icon),
+            React.createElement('div', { className:'step-text' },
+              React.createElement('strong', null, s.title),
+              React.createElement('span', null, s.sub)
+            )
+          )
+        )
+      ),
+      React.createElement('div', { style:{display:'flex',gap:'1rem',justifyContent:'center',flexWrap:'wrap'} },
+        React.createElement('button', { className:'btn-hero', onClick:()=>setPage('home') }, 'IR PARA INÍCIO'),
+        React.createElement('button', { className:'btn-hero-outline', onClick:()=>setPage('comprar') }, 'CONTINUAR COMPRANDO')
+      )
+    )
+  );
+}
+
+// ─── FOOTER ────────────────────────────────────────────────────────────────
+function Footer({ setPage }) {
+  return React.createElement('footer', { className:'footer' },
+    React.createElement('div', { className:'footer-grid' },
+      React.createElement('div', { className:'footer-brand' },
+        React.createElement('div', { className:'footer-logo' }, 'CloudPlay', React.createElement('span',null,'Games')),
+        React.createElement('p', { className:'footer-desc' }, 'A plataforma de jogos digitais mais completa do Brasil. Mais de 12.000 títulos esperando por você.')
+      ),
+      React.createElement('div', null,
+        React.createElement('div', { className:'footer-col-title' }, 'LOJA'),
+        ['Jogos em Oferta','Lançamentos','Free-to-Play','DLCs','Pacotes'].map(l =>
+          React.createElement('span', { key:l, className:'footer-link', onClick:()=>setPage('comprar') }, l)
+        )
+      ),
+      React.createElement('div', null,
+        React.createElement('div', { className:'footer-col-title' }, 'CONTA'),
+        ['Minha Biblioteca','Lista de Desejo','Histórico','Conquistas','Amigos'].map(l =>
+          React.createElement('span', { key:l, className:'footer-link', onClick:()=>setPage('lista-de-desejo') }, l)
+        )
+      ),
+      React.createElement('div', null,
+        React.createElement('div', { className:'footer-col-title' }, 'SUPORTE'),
+        ['Central de Ajuda','Reembolsos','Contato','Status do Servidor','Comunidade'].map(l =>
+          React.createElement('span', { key:l, className:'footer-link' }, l)
+        )
+      )
+    ),
+    React.createElement('div', { className:'footer-bottom' },
+      React.createElement('span', { className:'footer-copy' }, '© 2026 CloudPlayGames. Todos os direitos reservados.'),
+      React.createElement('div', { className:'footer-socials' },
+        ['🎮','📘','🐦','📺','💬'].map((s,i) =>
+          React.createElement('div', { key:i, className:'social-icon' }, s)
+        )
+      )
+    )
+  );
+}
+
+// ─── APP ROOT ──────────────────────────────────────────────────────────────
+const VALID_PAGES = ['home','comprar','login','lista-de-desejo','pagamento','confirmacao'];
+function pageFromPath() {
+  const slug = window.location.pathname.replace(/^\/+/, '') || 'home';
+  return VALID_PAGES.includes(slug) ? slug : 'home';
+}
+
+function App() {
+
+  const [page, setPage] = useState(pageFromPath());
+  const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [user, setUser] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState('Todos');
+
+  const [games, setGames] = React.useState([]);
+
+
+  React.useEffect(() => {
+    fetch('/api/games')
+      .then(res => res.json())
+      .then(data => setGames(data))
+      .catch(err => console.error("Erro ao buscar jogos do back-end:", err));
+  }, []);
+
+  // Restaura sessão se houver token salvo
+  React.useEffect(() => {
+    const token = localStorage.getItem('cpg_token');
+    if (!token) return;
+    fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => setUser(data.user))
+      .catch(() => localStorage.removeItem('cpg_token'));
+  }, []);
+
+  // Sincroniza URL <-> state (rota muda + botão voltar do navegador)
+  useEffect(() => {
+    const url = '/' + (page === 'home' ? '' : page);
+    if (window.location.pathname !== url) {
+      window.history.pushState({ page }, '', url);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    const onPop = () => setPage(pageFromPath());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+
+  const renderPage = () => {
+    switch(page) {
+      case 'home': 
+        return React.createElement(HomePage, { games, setPage, cart, setCart, wishlist, setWishlist, setGlobalFilter });
+      case 'comprar': 
+        return React.createElement(ComprarPage, { games, cart, setCart, wishlist, setWishlist, globalFilter, setGlobalFilter });
+      case 'login': 
+        return React.createElement(LoginPage, { setPage, setUser });
+      case 'lista-de-desejo': 
+        return React.createElement(WishlistPage, { wishlist, setWishlist, cart, setCart });
+      case 'pagamento': 
+        return React.createElement(PagamentoPage, { cart, setCart, setPage });
+      case 'confirmacao': 
+        return React.createElement(ConfirmacaoPage, { setPage, cart });
+      default: 
+        return React.createElement(HomePage, { games, setPage, cart, setCart, wishlist, setWishlist, setGlobalFilter });
+    }
+  };
+
+  const showFooter = !['login','pagamento','confirmacao'].includes(page);
+
+  // --- 5. RENDERIZAÇÃO FINAL ---
+  return React.createElement(React.Fragment, null,
+    React.createElement(Navbar, { page, setPage, cart, wishlist, user, setUser }),
+    React.createElement('main', { className:'main' }, renderPage()),
+    showFooter && React.createElement(Footer, { setPage }),
+    React.createElement(ToastContainer)
+  );
+}
+
+createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+
+<!-- PWA: Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

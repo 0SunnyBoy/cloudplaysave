@@ -1,0 +1,14 @@
+{
+  "name": "cloudplaygames-microservices",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Microsserviços do CloudPlayGames (auth, catalog, order, gateway)",
+  "scripts": {
+    "install:all": "npm --prefix api-gateway install && npm --prefix auth-service install && npm --prefix catalog-service install && npm --prefix order-service install",
+    "start:auth":     "npm --prefix auth-service start",
+    "start:catalog":  "npm --prefix catalog-service start",
+    "start:order":    "npm --prefix order-service start",
+    "start:gateway":  "npm --prefix api-gateway start",
+    "start:all":      "node start-all.js"
+  }
+}
